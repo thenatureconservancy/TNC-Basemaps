@@ -1,0 +1,114 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <!-- Text that displays in browser tab -->
+    <title>TNC Basemaps</title>
+    <!-- Bring in Esri style sheet -->
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.25/esri/themes/light/main.css"
+    />
+    <!-- Bring in esri ArcGIS Maps SDK for JavaScript -->
+    <script src="https://js.arcgis.com/4.25/"></script>
+    <!-- CSS -->
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      // Import Esri classes
+      require([
+        'esri/Map',
+        'esri/views/MapView',
+        'esri/portal/Portal',
+        'esri/widgets/BasemapGallery',
+        'esri/widgets/BasemapGallery/support/PortalBasemapsSource',
+        'esri/widgets/Expand',
+      ], function (
+        Map,
+        MapView,
+        Portal,
+        BasemapGallery,
+        PortalBasemapsSource,
+        Expand
+      ) {
+        // Portal IDs for TNC Basemaps. Use any id to set the map's basemap.
+        const tncLightMapId = 'dfe65251dac240a19c8edb892a3ea664';
+        const tncDarkMapId = '1f48b2b2456c44ad9c58d6741378c2ba';
+        const tncOutdoorMapId = 'd10c378e8a8d46998e1d248827855c69';
+        const topoMapId = '1dde97af802846f597a03d04050bad5b';
+
+        // Create map and use a portal ID from above to set the default basemap.
+        const map = new Map({
+          basemap: {
+            portalItem: {
+              id: tncOutdoorMapId,
+            },
+          },
+        });
+
+        // Create view and add map to view.
+        const view = new MapView({
+          container: 'viewDiv',
+          map: map,
+          center: [0, 35],
+          zoom: 2,
+          constraints: {
+            snapToZoom: false,
+          },
+        });
+
+        // Create portal. Used for PortalBasemapSource below
+        const portal = new Portal();
+
+        // Titles of TNC Basemaps to include in Basemap Gallery Widget
+        const allowedBasemapTitles = [
+          'TNC Light Map',
+          'TNC World Topographic Map',
+          'TNC Outdoor Map',
+          'TNC Dark Gray Map',
+        ];
+
+        // Define Basemap Gallery Wideget source using ID from TNC Basemap
+        //  Gallery ArcGIS Online Group. By default, all maps from group will
+        //  be added to the Basemap Gallery Widget. The filterFunction only
+        //  brings in maps from the group whose titles match those in the
+        //  allowedBasemapTitles array above.
+        const source = new PortalBasemapsSource({
+          portal,
+          query: {
+            id: 'defa1b2287604d069c70af515331e30f',
+          },
+          filterFunction: (basemap) =>
+            allowedBasemapTitles.indexOf(basemap.portalItem.title) > -1,
+        });
+
+        // Create an expand widget to house the Basemap Gallery Widget. Also
+        //  create the Basemap Gallery Widget using the source and view created
+        //  above.
+        const bgExpand = new Expand({
+          view,
+          content: new BasemapGallery({ source, view }),
+          expandIconClass: 'esri-icon-basemap',
+        });
+        view.ui.add(bgExpand, 'top-right');
+      });
+    </script>
+  </head>
+  <!-- HTML -->
+  <body>
+    <!-- Div to hold the view -->
+    <div id="viewDiv"></div>
+  </body>
+</html>
